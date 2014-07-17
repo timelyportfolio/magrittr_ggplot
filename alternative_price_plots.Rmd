@@ -1,0 +1,54 @@
+### Alternate Price Plots | ggplot2 + magrittr
+
+Just some quick experiments with ggplot2 + magrittr to plot prices differently than the traditional ways.  We'll get daily data on the S&P 500 from [FRED](http://research.stlouisfed.org/fred2/) using `getSymbols` and then push it through a `magrittr` pipe to various alternative plots.
+
+A couple notes for those who might be interested in magrittr.  If you want to `->` or `<-` but don't want the pipe fun to end, then you can use `assign` like this.
+
+```{r eval = F}
+mydata
+  %T>% assign( x="sp_df", value = ., envir = .GlobalEnv ) %>%
+```
+
+Also for those who want to use the special `+` inside a pipe or just want your `+` on a different line for tidy code and easy commenting, then you can do like this.
+
+```{r eval =F}
+ggplot( ) %>%
+  + geom_point()
+```
+
+Let me know if I have it all wrong, and now some plots as promised.
+
+```{r message=F, fig.keep='all', fig.width = 8, fig.height = 5 }
+
+require(ggplot2)
+require(dplyr)
+require(magrittr)
+require(quantmod)
+
+getSymbols("SP500", src="FRED", from = "1900-01-01", auto.assign=F) %>%
+  na.omit %>%
+  data.frame(
+    date = index(.)
+  ) %T>% assign( x="sp_df", value = ., envir = .GlobalEnv ) %>%
+  mutate( year = format(date,"%Y") ) %>%
+  ggplot(  aes( x=SP500, group = year ) ) %>%
+    + geom_density() %>%
+    + facet_wrap(~year,nrow=1) %>% 
+    + coord_flip() %>%
+    + theme_bw() %>%
+    + theme(
+        axis.line=element_blank()
+        ,axis.text.x=element_blank()
+        ,axis.title.x=element_blank()
+      ) 
+
+sp_df %>%
+  ggplot( aes( x = format(date,"%Y"), y = SP500 ) ) %T>% 
+  ( function(x){ print( x + geom_line() ) } ) %T>%
+  ( function(x){ print( x + geom_point() ) } ) %T>%
+  ( function(x){ print( x + geom_hex( bins = 20 ) ) } ) %>%
+  + geom_violin()
+                      
+```
+
+If you are interested in seeing the source Rmd, then it is [here](http://github.com/timelyportfolio/magrittr_ggplot/).

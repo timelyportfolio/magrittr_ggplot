@@ -51,4 +51,4 @@ sp_df %>%
                       
 ```
 
-If you are interested in seeing the source Rmd, then it is [here](http://github.com/timelyportfolio/magrittr_ggplot/).
+If you are interested in seeing the source Rmd, then it is [here](https://github.com/timelyportfolio/magrittr_ggplot/blob/gh-pages/alternative_price_plots.Rmd).
